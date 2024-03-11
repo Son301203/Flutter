@@ -12,6 +12,24 @@
       <excludeFolder url="file://$MODULE_DIR$/flutter_application_widget-1/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/flutter_application_widget-1/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/flutter_application_widget-1/build" />
+      <excludeFolder url="file://$MODULE_DIR$/unit_tesing - Copy/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/unit_tesing - Copy/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/unit_tesing - Copy/build" />
+      <excludeFolder url="file://$MODULE_DIR$/unit_tesing/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/unit_tesing/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/unit_tesing/build" />
+      <excludeFolder url="file://$MODULE_DIR$/Async/dart_application_1/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/Async/dart_application_1/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/Async/dart_application_1/build" />
+      <excludeFolder url="file://$MODULE_DIR$/Async_flutter/flutter_application_1/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/Async_flutter/flutter_application_1/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/Async_flutter/flutter_application_1/build" />
+      <excludeFolder url="file://$MODULE_DIR$/profile_update/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/profile_update/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/profile_update/build" />
+      <excludeFolder url="file://$MODULE_DIR$/profile_update/package/province/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/profile_update/package/province/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/profile_update/package/province/build" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
