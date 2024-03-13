@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'article_model.dart';
-import 'package:http/http.dart' as http;
+
 
 class ArticleDetail extends StatelessWidget {
   final Article article;
@@ -42,7 +42,7 @@ class ArticleDetail extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(6.0),
               decoration: BoxDecoration(
-                color: Colors.red,
+                color: Color.fromARGB(157, 35, 22, 21),
                 borderRadius: BorderRadius.circular(30.0),
               ),
             ),

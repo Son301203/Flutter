@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'article_model.dart';
 import 'article_detail.dart';
 import 'package:http/http.dart' as http;
-import 'package:url_launcher/url_launcher.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -13,7 +13,26 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Explore'),
+          title: Column(
+          children: [
+            Row(
+              children: [
+                Text(
+                  DateFormat('EEEE, dd MMMM yyyy').format(DateTime.now()),
+                  style: const TextStyle(color: Colors.grey, fontSize: 14.0),
+                ),
+              ],
+            ),
+            const Row(
+              children: [
+                Text(
+                  'Explore',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ],
+        ),
         ),
         body: FutureBuilder(
           future: getArticles(),
