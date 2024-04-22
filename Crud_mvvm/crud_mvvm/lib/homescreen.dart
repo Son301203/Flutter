@@ -1,4 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
+
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -6,13 +7,14 @@ import 'package:flutter/material.dart';
 class SampleItem {
   String id;
   ValueNotifier<String> name;
+
   SampleItem({String? id, required String name})
       : id = id ?? generateUuid(),
         name = ValueNotifier(name);
 
   static String generateUuid() {
     return int.parse(
-            '${DateTime.now().microsecondsSinceEpoch}${Random().nextInt(100000)}')
+            '${DateTime.now().millisecondsSinceEpoch}${Random().nextInt(100000)}')
         .toRadixString(35)
         .substring(0, 9);
   }
@@ -92,31 +94,30 @@ class SampleItemWidget extends StatelessWidget {
   final SampleItem item;
   final VoidCallback? onTap;
 
-  const SampleItemWidget(
-      {super.key, required this.item, this.onTap, onTaponTap});
+  const SampleItemWidget({super.key, required this.item, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-        valueListenable: item.name,
-        builder: (context, name, child) {
-          debugPrint(item.id);
-          return ListTile(
-            title: Text(name),
-            subtitle: Text(item.id),
-            leading: const CircleAvatar(
-              foregroundImage: AssetImage('assets/images/flutter_logo.png'),
-            ),
-            onTap: onTap,
-            trailing: const Icon(Icons.keyboard_arrow_right),
-          );
-        });
+    return ValueListenableBuilder<String?>(
+      valueListenable: item.name,
+      builder: (context, name, child) {
+        debugPrint(item.id);
+        return ListTile(
+          title: Text(name!),
+          subtitle: Text(item.id),
+          leading: const CircleAvatar(
+            foregroundImage: AssetImage('assets/images/flutter_logo.png'),
+          ),
+          onTap: onTap,
+          trailing: const Icon(Icons.keyboard_arrow_right),
+        );
+      },
+    );
   }
 }
 
 class SampleItemDetailsView extends StatefulWidget {
   final SampleItem item;
-
   const SampleItemDetailsView({super.key, required this.item});
 
   @override
@@ -149,23 +150,24 @@ class _SampleItemDetailsViewState extends State<SampleItemDetailsView> {
             icon: const Icon(Icons.delete),
             onPressed: () {
               showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: const Text("Xác nhận xóa"),
-                      content: const Text("Bạn có chắc chắn xóa mục này?"),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(false),
-                          child: const Text("Bỏ qua"),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.of(context).pop(true),
-                          child: const Text("Xóa"),
-                        ),
-                      ],
-                    );
-                  }).then((confirmed) {
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: const Text("Xác nhận xóa"),
+                    content: const Text("Bạn có chắc muốn xóa mục này?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: const Text("Bỏ qua"),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        child: const Text("Xóa"),
+                      ),
+                    ],
+                  );
+                },
+              ).then((confirmed) {
                 if (confirmed) {
                   Navigator.of(context).pop(true);
                 }
@@ -176,10 +178,12 @@ class _SampleItemDetailsViewState extends State<SampleItemDetailsView> {
       ),
       body: ValueListenableBuilder<String>(
         valueListenable: widget.item.name,
-        builder: (_, name, __){
-          return Center(child: Text(name));
+        builder: (_, name, __) {
+          return Center(
+            child: Text(name),
+          );
         },
-      )
+      ),
     );
   }
 }
@@ -193,7 +197,6 @@ class SampleItemListView extends StatefulWidget {
 
 class _SampleItemListViewState extends State<SampleItemListView> {
   final viewModel = SampleItemViewModel();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -202,22 +205,22 @@ class _SampleItemListViewState extends State<SampleItemListView> {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: (){
+            onPressed: () {
               showModalBottomSheet<String?>(
-                context: context, 
+                context: context,
                 builder: (context) => const SampleItemUpdate(),
               ).then((value) {
-                if(value != null){
+                if (value != null) {
                   viewModel.addItem(value);
                 }
               });
-            }, 
+            },
           )
         ],
       ),
       body: ListenableBuilder(
         listenable: viewModel,
-        builder: (context, _){
+        builder: (context, _) {
           return ListView.builder(
             itemCount: viewModel.items.length,
             itemBuilder: (context, index) {
@@ -225,23 +228,24 @@ class _SampleItemListViewState extends State<SampleItemListView> {
               return SampleItemWidget(
                 key: ValueKey(item.id),
                 item: item,
-                onTap: (){
+                onTap: () {
                   Navigator.of(context)
-                    .push<bool>(
-                      MaterialPageRoute(
-                        builder: (context) => SampleItemDetailsView(item: item),
-                      ),
-                    ).then((deleted) {
-                      if(deleted ?? false) {
-                        viewModel.removeItem(item.id);
-                      }
-                    });
+                      .push<bool>(
+                    MaterialPageRoute(
+                      builder: (context) => SampleItemDetailsView(item: item),
+                    ),
+                  )
+                      .then((deleted) {
+                    if (deleted ?? false) {
+                      viewModel.removeItem(item.id);
+                    }
+                  });
                 },
               );
             },
           );
         },
-      )
+      ),
     );
   }
 }
