@@ -1,14 +1,17 @@
+import 'dart:io';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class SampleItem {
   String id;
   ValueNotifier<String> name;
   ValueNotifier<String> author;
   ValueNotifier<String> content;
+  String image;  
 
   SampleItem(
-      {String? id, required String name, String? author, String? content})
+      {String? id, required String name, String? author, String? content, this.image = ''})
       : id = id ?? generateUuid(),
         name = ValueNotifier(name),
         author = ValueNotifier(author ?? ''),
@@ -28,8 +31,8 @@ class SampleItemViewModel extends ChangeNotifier {
   SampleItemViewModel._();
   final List<SampleItem> items = [];
 
-  void addItem(String name, String author, String content) {
-    items.add(SampleItem(name: name, author: author, content: content));
+  void addItem(String name, String author, String content, String image) {
+    items.add(SampleItem(name: name, author: author, content: content, image: image));
     notifyListeners();
   }
 
@@ -39,12 +42,13 @@ class SampleItemViewModel extends ChangeNotifier {
   }
 
   void updateItem(
-      String id, String newName, String newauthor, String newContent) {
+      String id, String newName, String newauthor, String newContent, String newImage) {
     try {
       final item = items.firstWhere((item) => item.id == id);
       item.name.value = newName;
       item.author.value = newauthor;
       item.content.value = newContent;
+      item.image = newImage;  
       notifyListeners();
     } catch (e) {
       debugPrint("Không tìm thấy mục với ID $id");
@@ -56,9 +60,10 @@ class SampleItemUpdate extends StatefulWidget {
   final String? initialName;
   final String? initialauthor;
   final String? initialContent;
+  final String? initialImage;  
 
   const SampleItemUpdate(
-      {Key? key, this.initialName, this.initialauthor, this.initialContent})
+      {Key? key, this.initialName, this.initialauthor, this.initialContent, this.initialImage})
       : super(key: key);
 
   @override
@@ -69,6 +74,7 @@ class _SampleItemUpdateState extends State<SampleItemUpdate> {
   late TextEditingController _nameController;
   late TextEditingController _authorController;
   late TextEditingController _contentController;
+  late XFile? _imageFile;  
 
   @override
   void initState() {
@@ -76,14 +82,14 @@ class _SampleItemUpdateState extends State<SampleItemUpdate> {
     _nameController = TextEditingController(text: widget.initialName);
     _authorController = TextEditingController(text: widget.initialauthor);
     _contentController = TextEditingController(text: widget.initialContent);
+    _imageFile = widget.initialImage != null ? XFile(widget.initialImage!) : null;   
   }
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _authorController.dispose();
-    _contentController.dispose();
-    super.dispose();
+  Future<void> _pickImage() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    setState(() {
+      _imageFile = pickedFile as XFile?;
+    });
   }
 
   @override
@@ -97,13 +103,15 @@ class _SampleItemUpdateState extends State<SampleItemUpdate> {
               Navigator.of(context).pop({
                 'name': _nameController.text,
                 'author': _authorController.text,
-                'content': _contentController.text
+                'content': _contentController.text,
+                'image': _imageFile?.path ?? ''
               });
             },
             icon: const Icon(Icons.save),
           )
         ],
       ),
+      resizeToAvoidBottomInset : false,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -120,7 +128,19 @@ class _SampleItemUpdateState extends State<SampleItemUpdate> {
             TextFormField(
               controller: _contentController,
               decoration: const InputDecoration(labelText: 'Nội dung'),
-            )
+            ),
+            ElevatedButton(
+              onPressed: _pickImage,
+              child: Text(_imageFile != null ? 'Chọn lại ảnh' : 'Chọn ảnh'),
+            ),
+            _imageFile != null
+                ? Image.file(
+                    File(_imageFile!.path),
+                    width: MediaQuery.of(context).size.width,
+                    fit: BoxFit.cover,
+                    height: 105,
+                  )
+                : SizedBox.shrink(),
           ],
         ),
       ),
@@ -143,8 +163,8 @@ class SampleItemWidget extends StatelessWidget {
         return ListTile(
           title: Text(name!),
           subtitle: Text(item.author.value),
-          leading: const CircleAvatar(
-            foregroundImage: AssetImage('assets/images/flutter_logo.png'),
+          leading: CircleAvatar(
+            backgroundImage: item.image.isNotEmpty ? FileImage(File(item.image)) : AssetImage('assets/images/flutter_logo.png') as ImageProvider,
           ),
           onTap: onTap,
           trailing: const Icon(Icons.keyboard_arrow_right),
@@ -156,7 +176,6 @@ class SampleItemWidget extends StatelessWidget {
 
 class SampleItemDetailsView extends StatefulWidget {
   final SampleItem item;
-  // ignore: use_key_in_widget_constructors
   const SampleItemDetailsView({Key? key, required this.item});
 
   @override
@@ -198,6 +217,7 @@ class _SampleItemDetailsViewState extends State<SampleItemDetailsView> {
         initialName: widget.item.name.value,
         initialauthor: widget.item.author.value,
         initialContent: widget.item.content.value,
+        initialImage: widget.item.image,
       ),
     ).then((value) {
       if (value != null) {
@@ -206,6 +226,7 @@ class _SampleItemDetailsViewState extends State<SampleItemDetailsView> {
           value['name'] ?? '',
           value['author'] ?? '',
           value['content'] ?? '',
+          value['image'] ?? '',
         );
         setState(() {});
       }
@@ -239,13 +260,14 @@ class _SampleItemDetailsViewState extends State<SampleItemDetailsView> {
             ),
           ),
           const SizedBox(height: 16),
-          Image.asset(
-            'assets/images/flutter_logo.png',
-            width:
-                MediaQuery.of(context).size.width, 
-            fit: BoxFit.cover, 
-            height: 250
-          ),
+          widget.item.image.isNotEmpty
+              ? Image.file(
+                  File(widget.item.image),
+                  width: MediaQuery.of(context).size.width,
+                  fit: BoxFit.cover,
+                  height: 250,
+                )
+              : SizedBox.shrink(),
           const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -270,6 +292,7 @@ class _SampleItemDetailsViewState extends State<SampleItemDetailsView> {
     );
   }
 }
+
 class SampleItemSearchDelegate extends SearchDelegate<SampleItem> {
   final SampleItemViewModel viewModel;
 
@@ -291,10 +314,7 @@ class SampleItemSearchDelegate extends SearchDelegate<SampleItem> {
   Widget buildLeading(BuildContext context) {
     return IconButton(
       onPressed: () {
-        close(context, SampleItem(id: '',
-        name: '',
-        author: '',
-        content: '',));
+        close(context, SampleItem(id: '', name: '', author: '', content: '', image: ''));
       },
       icon: const Icon(Icons.arrow_back),
     );
@@ -318,6 +338,9 @@ class SampleItemSearchDelegate extends SearchDelegate<SampleItem> {
         return ListTile(
           title: Text(item.name.value),
           subtitle: Text(item.author.value),
+          leading: CircleAvatar(
+            backgroundImage: item.image.isNotEmpty ? FileImage(File(item.image)) : AssetImage('assets/images/flutter_logo.png') as ImageProvider,
+          ),
           onTap: () {
             close(context, item);
           },
@@ -342,6 +365,9 @@ class SampleItemSearchDelegate extends SearchDelegate<SampleItem> {
         return ListTile(
           title: Text(item.name.value),
           subtitle: Text(item.author.value),
+          leading: CircleAvatar(
+            backgroundImage: item.image.isNotEmpty ? FileImage(File(item.image)) : AssetImage('assets/images/flutter_logo.png') as ImageProvider,
+          ),
           onTap: () {
             close(context, item);
           },
@@ -350,7 +376,6 @@ class SampleItemSearchDelegate extends SearchDelegate<SampleItem> {
     );
   }
 }
-
 
 class SampleItemListView extends StatefulWidget {
   const SampleItemListView({Key? key}) : super(key: key);
@@ -391,7 +416,7 @@ class _SampleItemListViewState extends State<SampleItemListView> {
               ).then((value) {
                 if (value != null) {
                   viewModel.addItem(value['name'] ?? '', value['author'] ?? '',
-                      value['content'] ?? '');
+                      value['content'] ?? '', value['image'] ?? '');
                 }
               });
             },
@@ -427,4 +452,3 @@ class _SampleItemListViewState extends State<SampleItemListView> {
     );
   }
 }
-
