@@ -8,10 +8,14 @@ class SampleItem {
   ValueNotifier<String> name;
   ValueNotifier<String> author;
   ValueNotifier<String> content;
-  String image;  
+  String image;
 
   SampleItem(
-      {String? id, required String name, String? author, String? content, this.image = ''})
+      {String? id,
+      required String name,
+      String? author,
+      String? content,
+      this.image = ''})
       : id = id ?? generateUuid(),
         name = ValueNotifier(name),
         author = ValueNotifier(author ?? ''),
@@ -32,7 +36,8 @@ class SampleItemViewModel extends ChangeNotifier {
   final List<SampleItem> items = [];
 
   void addItem(String name, String author, String content, String image) {
-    items.add(SampleItem(name: name, author: author, content: content, image: image));
+    items.add(
+        SampleItem(name: name, author: author, content: content, image: image));
     notifyListeners();
   }
 
@@ -41,14 +46,14 @@ class SampleItemViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void updateItem(
-      String id, String newName, String newauthor, String newContent, String newImage) {
+  void updateItem(String id, String newName, String newauthor,
+      String newContent, String newImage) {
     try {
       final item = items.firstWhere((item) => item.id == id);
       item.name.value = newName;
       item.author.value = newauthor;
       item.content.value = newContent;
-      item.image = newImage;  
+      item.image = newImage;
       notifyListeners();
     } catch (e) {
       debugPrint("Không tìm thấy mục với ID $id");
@@ -60,10 +65,14 @@ class SampleItemUpdate extends StatefulWidget {
   final String? initialName;
   final String? initialauthor;
   final String? initialContent;
-  final String? initialImage;  
+  final String? initialImage;
 
   const SampleItemUpdate(
-      {Key? key, this.initialName, this.initialauthor, this.initialContent, this.initialImage})
+      {Key? key,
+      this.initialName,
+      this.initialauthor,
+      this.initialContent,
+      this.initialImage})
       : super(key: key);
 
   @override
@@ -74,7 +83,7 @@ class _SampleItemUpdateState extends State<SampleItemUpdate> {
   late TextEditingController _nameController;
   late TextEditingController _authorController;
   late TextEditingController _contentController;
-  late XFile? _imageFile;  
+  late XFile? _imageFile;
 
   @override
   void initState() {
@@ -82,11 +91,13 @@ class _SampleItemUpdateState extends State<SampleItemUpdate> {
     _nameController = TextEditingController(text: widget.initialName);
     _authorController = TextEditingController(text: widget.initialauthor);
     _contentController = TextEditingController(text: widget.initialContent);
-    _imageFile = widget.initialImage != null ? XFile(widget.initialImage!) : null;   
+    _imageFile =
+        widget.initialImage != null ? XFile(widget.initialImage!) : null;
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     setState(() {
       _imageFile = pickedFile as XFile?;
     });
@@ -111,29 +122,47 @@ class _SampleItemUpdateState extends State<SampleItemUpdate> {
           )
         ],
       ),
-      resizeToAvoidBottomInset : false,
+      resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            TextFormField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Tên'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 13),
+              child: TextFormField(
+                controller: _nameController,
+                decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.all(14),
+                    border: OutlineInputBorder(), hintText: 'Tên bài báo'),
+              ),
             ),
-            TextFormField(
-              controller: _authorController,
-              decoration: const InputDecoration(labelText: 'Tác giả'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 13),
+              child: TextFormField(
+                controller: _authorController,
+                decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.all(14),
+                    border: OutlineInputBorder(), hintText: 'Tác giả'),
+              ),
             ),
-            TextFormField(
-              controller: _contentController,
-              decoration: const InputDecoration(labelText: 'Nội dung'),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 13),
+              child: TextFormField(
+                controller: _contentController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'Nội dung',
+                ),
+                keyboardType: TextInputType.multiline,
+                maxLines: 2,
+              ),
             ),
             ElevatedButton(
               onPressed: _pickImage,
               child: Text(_imageFile != null ? 'Chọn lại ảnh' : 'Chọn ảnh'),
             ),
-            _imageFile != null
+            _imageFile != null && File(_imageFile!.path).existsSync()
                 ? Image.file(
                     File(_imageFile!.path),
                     width: MediaQuery.of(context).size.width,
@@ -164,7 +193,9 @@ class SampleItemWidget extends StatelessWidget {
           title: Text(name!),
           subtitle: Text(item.author.value),
           leading: CircleAvatar(
-            backgroundImage: item.image.isNotEmpty ? FileImage(File(item.image)) : AssetImage('assets/images/flutter_logo.png') as ImageProvider,
+            backgroundImage: item.image.isNotEmpty
+                ? FileImage(File(item.image))
+                : AssetImage('assets/images/flutter_logo.png') as ImageProvider,
           ),
           onTap: onTap,
           trailing: const Icon(Icons.keyboard_arrow_right),
@@ -314,7 +345,8 @@ class SampleItemSearchDelegate extends SearchDelegate<SampleItem> {
   Widget buildLeading(BuildContext context) {
     return IconButton(
       onPressed: () {
-        close(context, SampleItem(id: '', name: '', author: '', content: '', image: ''));
+        close(context,
+            SampleItem(id: '', name: '', author: '', content: '', image: ''));
       },
       icon: const Icon(Icons.arrow_back),
     );
@@ -339,7 +371,9 @@ class SampleItemSearchDelegate extends SearchDelegate<SampleItem> {
           title: Text(item.name.value),
           subtitle: Text(item.author.value),
           leading: CircleAvatar(
-            backgroundImage: item.image.isNotEmpty ? FileImage(File(item.image)) : AssetImage('assets/images/flutter_logo.png') as ImageProvider,
+            backgroundImage: item.image.isNotEmpty
+                ? FileImage(File(item.image))
+                : AssetImage('assets/images/flutter_logo.png') as ImageProvider,
           ),
           onTap: () {
             close(context, item);
@@ -366,7 +400,9 @@ class SampleItemSearchDelegate extends SearchDelegate<SampleItem> {
           title: Text(item.name.value),
           subtitle: Text(item.author.value),
           leading: CircleAvatar(
-            backgroundImage: item.image.isNotEmpty ? FileImage(File(item.image)) : AssetImage('assets/images/flutter_logo.png') as ImageProvider,
+            backgroundImage: item.image.isNotEmpty
+                ? FileImage(File(item.image))
+                : AssetImage('assets/images/flutter_logo.png') as ImageProvider,
           ),
           onTap: () {
             close(context, item);

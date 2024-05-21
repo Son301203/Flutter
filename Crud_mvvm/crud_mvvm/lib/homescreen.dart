@@ -1,7 +1,9 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 
+import 'dart:developer';
 import 'dart:math';
 
+import 'package:crud_mvvm/sample_item_services.dart';
 import 'package:flutter/material.dart';
 
 class SampleItem {
@@ -18,28 +20,59 @@ class SampleItem {
         .toRadixString(35)
         .substring(0, 9);
   }
+
+  Map<String, dynamic> toMap() {
+    return <String, dynamic>{
+      'id': id,
+      'name': name.value,
+    };
+  }
+
+  factory SampleItem.fromMap(Map<String, dynamic> map) {
+    return SampleItem(
+      id: map['id'] as String,
+      name: map['name'] as String,
+    );
+  }
+
 }
 
 class SampleItemViewModel extends ChangeNotifier {
-  static final _instance = SampleItemViewModel._();
+  static final _instance = SampleItemViewModel._internal();
   factory SampleItemViewModel() => _instance;
-  SampleItemViewModel._();
+
+  final services = SampleItemServices();
+
+  SampleItemViewModel._internal()
+  {
+    final values = services.loadItem();
+    if(values is List<SampleItem>) {
+      items.clear();
+      items.addAll(values as Iterable<SampleItem>);
+      notifyListeners();
+    }
+  }
   final List<SampleItem> items = [];
 
-  void addItem(String name) {
-    items.add(SampleItem(name: name));
+  addItem(String name) {
+    var item = SampleItem(name: name);
+    items.add(item);
     notifyListeners();
+    services.addItem(item);
+    return item;
   }
 
-  void removeItem(String id) {
+  removeItem(String id) {
     items.removeWhere((item) => item.id == id);
     notifyListeners();
+    services.removeItem(id);
   }
 
-  void updateItem(String id, String newName) {
+  updateItem(String id, String newName) {
     try {
       final item = items.firstWhere((item) => item.id == id);
       item.name.value = newName;
+      services.updateItem(item);
     } catch (e) {
       debugPrint("Không tìm thấy mục với ID $id");
     }

@@ -32,7 +32,8 @@ dependencies:
     sdk: flutter
   
   image_picker: ^1.1.0
-  
+  localstorage: ^5.0.0
+  localstore: ^1.4.0
 
 
 
