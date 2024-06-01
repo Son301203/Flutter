@@ -4,9 +4,9 @@ import 'dart:async';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_firebase_starter/firebase_ui_screen.dart';
 import 'package:flutter_firebase_starter/home_page.dart';
 import 'firebase_options.dart';
-import 'add_data.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       navigatorObservers: <NavigatorObserver>[observer],
-      home: const AddDataPage(),
+      home: const HomeScreen(),
     );
   }
 }
