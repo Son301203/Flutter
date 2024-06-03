@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'add_data.dart';
+import 'furniture_screen.dart';
+import 'carts.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -11,28 +13,35 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _ageController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _priceController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
 
-  Future<void> deleteUser(String userId) async {
-    await FirebaseFirestore.instance.collection('users').doc(userId).delete();
+  Future<void> deleteFurniture(String furnitureId) async {
+    await FirebaseFirestore.instance
+        .collection('Furnitures')
+        .doc(furnitureId)
+        .delete();
   }
 
-  Future<void> updateUser(String userId) async {
-    await FirebaseFirestore.instance.collection('users').doc(userId).update({
+  Future<void> updateFurniture(String furnitureId) async {
+    await FirebaseFirestore.instance
+        .collection('Furnitures')
+        .doc(furnitureId)
+        .update({
       'name': _nameController.text,
-      'age': int.tryParse(_ageController.text) ?? 0,
-      'email': _emailController.text,
+      'price': int.tryParse(_priceController.text) ?? 0,
+      'description': _descriptionController.text,
     });
   }
 
-  void showDeleteConfirmationDialog(String userId) {
+  void showDeleteConfirmationDialog(String furnitureId) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Confirm Delete'),
-          content: const Text('Are you sure you want to delete this user?'),
+          content:
+              const Text('Are you sure you want to delete this furniture?'),
           actions: <Widget>[
             TextButton(
               child: const Text('Cancel'),
@@ -43,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
             TextButton(
               child: const Text('Delete'),
               onPressed: () {
-                deleteUser(userId);
+                deleteFurniture(furnitureId);
                 Navigator.of(context).pop();
               },
             ),
@@ -53,16 +62,16 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  void showEditDialog(DocumentSnapshot user) {
-    _nameController.text = user['name'];
-    _ageController.text = user['age'].toString();
-    _emailController.text = user['email'];
+  void showEditDialog(DocumentSnapshot furniture) {
+    _nameController.text = furniture['name'];
+    _priceController.text = furniture['price'].toString();
+    _descriptionController.text = furniture['description'];
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Edit User'),
+          title: const Text('Edit Furniture'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
@@ -71,14 +80,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 decoration: const InputDecoration(labelText: 'Name'),
               ),
               TextFormField(
-                controller: _ageController,
-                decoration: const InputDecoration(labelText: 'Age'),
+                controller: _priceController,
+                decoration: const InputDecoration(labelText: 'Price'),
                 keyboardType: TextInputType.number,
               ),
               TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-                keyboardType: TextInputType.emailAddress,
+                controller: _descriptionController,
+                decoration: const InputDecoration(labelText: 'Description'),
               ),
             ],
           ),
@@ -92,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
             TextButton(
               child: const Text('Save'),
               onPressed: () {
-                updateUser(user.id);
+                updateFurniture(furniture.id);
                 Navigator.of(context).pop();
               },
             ),
@@ -106,12 +114,23 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: const Text('Users'),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        title: const Text('Furnitures'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.shopping_cart),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const CartsScreen()),
+              );
+            },
+          )
+        ],
       ),
       body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('users').snapshots(),
+        stream: FirebaseFirestore.instance.collection('Furnitures').snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return const Center(child: Text('Something went wrong'));
@@ -122,36 +141,74 @@ class _HomeScreenState extends State<HomeScreen> {
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text('No users found'));
+            return const Center(child: Text('No furniture found'));
           }
 
-          final users = snapshot.data!.docs;
+          final furnitures = snapshot.data!.docs;
 
           return ListView.builder(
-            itemCount: users.length,
+            itemCount: furnitures.length,
             itemBuilder: (context, index) {
-              final user = users[index];
-              final name = user['name'];
-              final age = user['age'];
-              final email = user['email'];
+              final furniture = furnitures[index];
+              final name = furniture['name'];
+              final price = furniture['price'];
+              final image = furniture['image'];
 
-              return ListTile(
-                leading: const Icon(Icons.person),
-                title: Text(name),
-                subtitle: Text('Age: $age\nEmail: $email'),
-                isThreeLine: true,
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit),
-                      onPressed: () => showEditDialog(user),
+              return Card(
+                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                elevation: 5,
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(16),
+                  leading: image.isEmpty
+                      ? const Icon(Icons.chair, size: 80)
+                      : ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            image,
+                            height: 80,
+                            width: 80,
+                          ),
+                        ),
+                  title: Text(
+                    name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
                     ),
-                    IconButton(
-                      icon: const Icon(Icons.delete),
-                      onPressed: () => showDeleteConfirmationDialog(user.id),
+                  ),
+                  subtitle: Text(
+                    'Price: \$${price.toString()}',
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16,
                     ),
-                  ],
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () => showEditDialog(furniture),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () =>
+                            showDeleteConfirmationDialog(furniture.id),
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            FurnitureScreen(furniture: furniture),
+                      ),
+                    );
+                  },
                 ),
               );
             },
