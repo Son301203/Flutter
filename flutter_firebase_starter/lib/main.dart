@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_firebase_starter/firebase_auth_screen.dart';
 // import 'package:flutter_firebase_starter/firebase_ui_screen.dart';
 import 'package:flutter_firebase_starter/home_page.dart';
 import 'firebase_options.dart';
@@ -13,7 +14,7 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  runApp(const MyApp());
+  runApp(const FirebaseAuthScreen());
 }
 
 class MyApp extends StatelessWidget {

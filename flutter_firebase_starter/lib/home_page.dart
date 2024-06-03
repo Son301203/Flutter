@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_firebase_starter/profile_page.dart';
 import 'add_data.dart';
 import 'furniture_screen.dart';
 import 'carts.dart';
@@ -116,7 +117,6 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.primary,
         title: const Text('Furnitures'),
-        centerTitle: true,
         actions: [
           IconButton(
             icon: const Icon(Icons.shopping_cart),
@@ -124,6 +124,24 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const CartsScreen()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.supervised_user_circle),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfliePage()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AddDataPage()),
               );
             },
           )
@@ -214,15 +232,6 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const AddDataPage()),
-          );
-        },
-        child: const Icon(Icons.add),
       ),
     );
   }
