@@ -14,20 +14,30 @@ class _ProfliePageState extends State<ProfliePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Proflie page'),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        title: const Text('Profile Page'),
+        centerTitle: true,
       ),
-      body: Column(
-        children: [
-          Text(
-            auth.currentUser?.email ?? 'N/A',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          FilledButton.tonalIcon(
-            onPressed: signOut,
-            icon: const Icon(Icons.logout),
-            label: const Text('Sign Out'),
-          )
-        ],
+      body: Center(
+        child: Column(
+          children: [
+            const SizedBox(
+              height: 64,
+            ),
+            Text(
+              auth.currentUser?.email ?? 'N/A',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(
+              height: 12,
+            ),
+            FilledButton.tonalIcon(
+              onPressed: signOut,
+              icon: const Icon(Icons.logout),
+              label: const Text('Sign Out'),
+            )
+          ],
+        ),
       ),
     );
   }

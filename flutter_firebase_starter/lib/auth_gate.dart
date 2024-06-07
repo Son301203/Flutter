@@ -25,11 +25,14 @@ class _AuthGateState extends State<AuthGate> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context).colorScheme.primary,
         title: Text(mode.title),
+        centerTitle: true,
       ),
       body: mode == AuthMode.register
           ? Center(
               child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Form(
                     key: formKey,
@@ -145,8 +148,17 @@ class _AuthGateState extends State<AuthGate> {
     print('Perform user login function');
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
-    if (formKey.currentState!.validate()) {
-      await auth.signInWithEmailAndPassword(email: email, password: password);
+    try {
+      if (formKey.currentState!.validate()) {
+        await auth.signInWithEmailAndPassword(email: email, password: password);
+      }
+    } on FirebaseAuthException catch (e) {
+      showDialog(
+        context: context, 
+        builder: (context) => const AlertDialog(
+          title: Text('Email or password is invalid'),
+        )
+      );
     }
   }
 }

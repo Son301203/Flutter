@@ -17,6 +17,7 @@ class _FirebaseAuthScreenState extends State<FirebaseAuthScreen> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         body: LayoutBuilder(builder: (context, constraints){
           return Row(
