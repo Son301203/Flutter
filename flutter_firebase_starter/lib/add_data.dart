@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:async';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -21,6 +19,7 @@ class _AddDataPageState extends State<AddDataPage> {
   final TextEditingController _descriptionController = TextEditingController();
 
   String imageURL = '';
+  File? _imageFile;
 
   bool isBusy = false;
 
@@ -44,6 +43,10 @@ class _AddDataPageState extends State<AddDataPage> {
       _nameController.clear();
       _priceController.clear();
       _descriptionController.clear();
+      setState(() {
+        _imageFile = null;
+        imageURL = '';
+      });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
@@ -53,13 +56,28 @@ class _AddDataPageState extends State<AddDataPage> {
       isBusy = false;
     });
   }
+  
+  Future<void> pickImage() async {
+    ImagePicker imagePicker = ImagePicker();
+    XFile? file = await imagePicker.pickImage(source: ImageSource.gallery);
+    if (file == null) return;
 
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _priceController.dispose();
-    _descriptionController.dispose();
-    super.dispose();
+    setState(() {
+      _imageFile = File(file.path);
+    });
+
+    String uniqueFileName = DateTime.now().millisecondsSinceEpoch.toString();
+
+    Reference referenceRoot = FirebaseStorage.instance.ref();
+    Reference referenceDirImages = referenceRoot.child('images');
+    Reference referenceImageToUpload = referenceDirImages.child(uniqueFileName);
+
+    try {
+      await referenceImageToUpload.putFile(_imageFile!);
+      imageURL = await referenceImageToUpload.getDownloadURL();
+    } catch (e) {
+      print(e.toString());
+    }
   }
 
   @override
@@ -70,6 +88,7 @@ class _AddDataPageState extends State<AddDataPage> {
         title: const Text('Add Furnitures'),
         centerTitle: true,
       ),
+      resizeToAvoidBottomInset: false,
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -90,28 +109,16 @@ class _AddDataPageState extends State<AddDataPage> {
                 decoration: const InputDecoration(labelText: 'Description'),
               ),
               const SizedBox(height: 20),
+              _imageFile == null
+                  ? const Icon(Icons.image, size: 100)
+                  : Image.file(
+                      _imageFile!,
+                      width: 100,
+                      height: 100,
+                    ),
+              const SizedBox(height: 20),
               IconButton(
-                onPressed: () async{
-                  ImagePicker imagePicker = ImagePicker();
-                  XFile? file = await imagePicker.pickImage(source: ImageSource.gallery);
-                  print('${file?.path}');
-
-                  if(file == null) return;
-
-                  String uniqueFileName = DateTime.now().millisecondsSinceEpoch.toString();
-
-                  Reference referenceRoot = FirebaseStorage.instance.ref();
-                  Reference referenceDirImages = referenceRoot.child('images');
-                  Reference referenceImageToUpload = referenceDirImages.child(uniqueFileName);
-                  
-                  try{
-                    await referenceImageToUpload.putFile(File(file.path));
-                    imageURL = await referenceImageToUpload.getDownloadURL();
-                  }catch(e){
-                    print(e.toString);
-                  }
-
-                },
+                onPressed: pickImage,
                 icon: const Icon(Icons.add_a_photo_outlined),
               ),
               const SizedBox(height: 20),

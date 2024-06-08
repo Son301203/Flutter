@@ -22,6 +22,9 @@ class _HomeScreenState extends State<HomeScreen> {
         .collection('Furnitures')
         .doc(furnitureId)
         .delete();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Delete Furniture Successfully')),
+    );
   }
 
   Future<void> updateFurniture(String furnitureId) async {
@@ -33,6 +36,9 @@ class _HomeScreenState extends State<HomeScreen> {
       'price': int.tryParse(_priceController.text) ?? 0,
       'description': _descriptionController.text,
     });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Update Furniture Successfully')),
+    );
   }
 
   void showDeleteConfirmationDialog(String furnitureId) {
