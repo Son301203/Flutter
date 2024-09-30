@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "396448704593",
+    "project_id": "carrental-2d682",
+    "storage_bucket": "carrental-2d682.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:396448704593:android:65458d8546c4ef2b057070",
+        "android_client_info": {
+          "package_name": "com.example.application_map"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrI9myyJg7wWmW08juzNir-ZgND1fIPoQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
